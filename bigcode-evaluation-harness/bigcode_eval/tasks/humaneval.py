@@ -2,12 +2,11 @@
 https://arxiv.org/abs/2107.03374
 
 The HumanEval dataset released by OpenAI includes 164 programming problems with a function signature,
-docstring, body, and several unit tests. 
+docstring, body, and several unit tests.
 They were handwritten to ensure not to be included in the training set of code generation models.
 
 Homepage: https://github.com/openai/human-eval
 """
-
 
 from bigcode_eval.base import Task
 from bigcode_eval.tasks.custom_metrics.code_eval import compute_code_eval
@@ -47,9 +46,18 @@ class GeneralHumanEval(Task):
 
     DATASET_PATH = "openai_humaneval"
 
-    def __init__(self, strip_prompt, k=[1, 10, 100], num_workers=16, timeout=3.0):
+    def __init__(self, strip_prompt, k=[1, 3, 5], num_workers=16, timeout=3.0):
         super().__init__(
-            stop_words=["\nclass", "\ndef", "\n#", "\n@", "\nprint", "\nif", "\n```", "<file_sep>"],
+            stop_words=[
+                "\nclass",
+                "\ndef",
+                "\n#",
+                "\n@",
+                "\nprint",
+                "\nif",
+                "\n```",
+                "<file_sep>",
+            ],
             requires_execution=True,
         )
         self.strip_prompt = strip_prompt
@@ -73,7 +81,6 @@ class GeneralHumanEval(Task):
         test_func = doc["test"]
         entry_point = f"check({doc['entry_point']})"
         return "\n" + test_func + "\n" + entry_point
-
 
     def postprocess_generation(self, generation, idx):
         """Defines the postprocessing for a LM generation.

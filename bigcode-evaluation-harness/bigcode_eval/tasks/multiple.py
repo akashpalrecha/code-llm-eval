@@ -20,10 +20,12 @@ from datasets import load_dataset
 from tqdm import tqdm
 
 from bigcode_eval.base import Task
-from bigcode_eval.tasks.custom_metrics.multiple_metrics.evaluation import \
-    evaluate_problem
-from bigcode_eval.tasks.custom_metrics.multiple_metrics.single_experiment_pass_k import \
-    for_file
+from bigcode_eval.tasks.custom_metrics.multiple_metrics.evaluation import (
+    evaluate_problem,
+)
+from bigcode_eval.tasks.custom_metrics.multiple_metrics.single_experiment_pass_k import (
+    for_file,
+)
 
 _CITATION = """
 @article{cassano2022scalable,
@@ -41,8 +43,7 @@ _CITATION = """
 LANGUAGES = [
     "py",
     "sh",
-    "clj"
-    "cpp",
+    "clj" "cpp",
     "cs",
     "d",
     "dart",
@@ -53,8 +54,7 @@ LANGUAGES = [
     "js",
     "jl",
     "lua",
-    "ml"
-    "pl",
+    "ml" "pl",
     "php",
     "r",
     "rkt",
@@ -98,7 +98,8 @@ class GeneralMultiPLE(Task):
         self.dataset = load_dataset(
             GeneralMultiPLE.DATASET_PATH,
             self.DATASET_NAME,
-            revision=self.DATASET_REVISION)
+            revision=self.DATASET_REVISION,
+        )
         stop_words = self.dataset["test"][0]["stop_tokens"] + ["<file_sep>"]
         super().__init__(
             stop_words=stop_words,
@@ -123,7 +124,6 @@ class GeneralMultiPLE(Task):
         string_list = re.split("(%s)" % "|".join(stop_words), string)
         # last string should be ""
         return "".join(string_list[:-2])
-
 
     def postprocess_generation(self, generation, idx):
         """Defines the postprocessing for a LM generation.
@@ -154,7 +154,7 @@ class GeneralMultiPLE(Task):
         # a common temp dir for all the problems
         temp_dir = tempfile.gettempdir()
         list_files = []
-        for (prompt_name, generation, reference) in zip(
+        for prompt_name, generation, reference in zip(
             prompts_names, generations, references
         ):
             problem = {

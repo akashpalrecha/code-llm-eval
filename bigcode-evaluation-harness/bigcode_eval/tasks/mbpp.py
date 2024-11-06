@@ -1,9 +1,9 @@
 """Program Synthesis with Large Language Models
 https://arxiv.org/abs/2108.07732
 
-The benchmark consists of around 1,000 crowd-sourced Python programming problems, 
-designed to be solvable by entry level programmers, covering programming fundamentals, 
-standard library functionality, and so on. Each problem consists of a task description, 
+The benchmark consists of around 1,000 crowd-sourced Python programming problems,
+designed to be solvable by entry level programmers, covering programming fundamentals,
+standard library functionality, and so on. Each problem consists of a task description,
 code solution and 3 automated test cases. As described in the paper, a subset of the data
 has been hand-verified by the authors.
 
@@ -30,11 +30,20 @@ class MBPP(Task):
 
     DATASET_PATH = "mbpp"
 
-    def __init__(self):
+    def __init__(self, k=[1, 3, 5]):
         super().__init__(
-            stop_words=["\nclass", "\nassert", '\n"""', "\nprint", "\nif", "\n<|/", "\n```"],
+            stop_words=[
+                "\nclass",
+                "\nassert",
+                '\n"""',
+                "\nprint",
+                "\nif",
+                "\n<|/",
+                "\n```",
+            ],
             requires_execution=True,
         )
+        self.k = k
 
     def get_dataset(self):
         """Returns dataset for the task or an iterable of any object, that get_prompt can handle"""
@@ -59,7 +68,6 @@ class MBPP(Task):
         """Builds the reference solution for the doc (sample from the test dataset)."""
         return "\n".join(doc["test_list"])
 
-
     def postprocess_generation(self, generation, idx):
         """Defines the postprocessing for a LM generation.
         :param generation: str
@@ -82,5 +90,6 @@ class MBPP(Task):
         results, _ = compute_code_eval(
             references=references,
             predictions=generations,
+            k=self.k,
         )
         return results
