@@ -1,9 +1,11 @@
 FROM ghcr.io/nuprl/multipl-e-evaluation@sha256:11864ca95774df16c34b4cd1eac231f9e5466c7ea38dac98e5b5b053e18479de
 
-# Standard requirements
-COPY . /app
+# Copy setup files and install dependencies
+COPY setup.py requirements.txt README.md /app/
 WORKDIR /app
-RUN test -f /app/generations.json && rm /app/generations.json || true
-
 RUN pip3 install .
+
+# Copy remaining files
+COPY . /app
+
 CMD ["python3", "main.py"]
