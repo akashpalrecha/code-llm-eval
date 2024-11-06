@@ -186,14 +186,13 @@ class GeneralMultiPLE(Task):
             [for_file(p, ks=ks) for p in Path(temp_dir).glob("*.results.json")]
         )
         result = result_array.mean(axis=0)
+        
         name = (
             temp_dir.split("/")[-1]
             if temp_dir.split("/")[-1] != ""
             else temp_dir.split("/")[-2]
         )
         results = {
-            f"pass@{k}": v
-            for k, v in zip([1, 10, 100], result)
-            if k <= len(generations[0])
+            f"pass@{k}": v for k, v in zip(ks, result) if k <= len(generations[0])
         }
         return results
