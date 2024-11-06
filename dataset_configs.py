@@ -1,9 +1,10 @@
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 
 @dataclass
-class BenchmarkConfig:
+class TaskConfig:
     name: str = "test"
     temperature: float = 0.2
     max_generation_length: int = 512
@@ -26,18 +27,18 @@ class BenchmarkConfig:
 
 
 task_configs = {
-    "humaneval": BenchmarkConfig(
+    "humaneval": TaskConfig(
         name="humaneval",
         temperature=0.2,
         max_generation_length=512,
     ),
-    "mbpp": BenchmarkConfig(
+    "mbpp": TaskConfig(
         name="mbpp",
         temperature=0.1,
         max_generation_length=512,
     ),
-    "multiple-e": BenchmarkConfig(
-        name="multiple-go",
+    "multiple-e": TaskConfig(
+        name="multiple-py",
         temperature=0.1,
         max_generation_length=512,
         extra="""
