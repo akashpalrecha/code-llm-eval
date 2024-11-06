@@ -22,7 +22,6 @@ def run_evaluation_container(
         str(metrics_output_path): {"bind": "/app/metrics_output.json", "mode": "rw"},
     }
 
-    # Command to run in the container
     pass_k_vals = map(str, pass_ks)
     _command = [
         "--model",
@@ -42,7 +41,6 @@ def run_evaluation_container(
         *pass_k_vals,
     ]
 
-    # Run container
     container = client.containers.run(
         image="evaluation-harness-multiple",
         command=_command,
@@ -54,7 +52,6 @@ def run_evaluation_container(
     for line in container.logs(stream=True):
         print(line.decode("utf-8"), end="")
 
-    # Cleanup
     container.remove()
 
 
