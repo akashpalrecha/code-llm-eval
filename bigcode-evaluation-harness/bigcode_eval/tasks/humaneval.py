@@ -9,6 +9,7 @@ Homepage: https://github.com/openai/human-eval
 """
 
 from bigcode_eval.base import Task
+from bigcode_eval.configure_ks import get_ks
 from bigcode_eval.tasks.custom_metrics.code_eval import compute_code_eval
 
 _CITATION = """
@@ -46,7 +47,7 @@ class GeneralHumanEval(Task):
 
     DATASET_PATH = "openai_humaneval"
 
-    def __init__(self, strip_prompt, k=[1, 3, 5], num_workers=16, timeout=3.0):
+    def __init__(self, strip_prompt, num_workers=16, timeout=3.0):
         super().__init__(
             stop_words=[
                 "\nclass",
@@ -61,7 +62,7 @@ class GeneralHumanEval(Task):
             requires_execution=True,
         )
         self.strip_prompt = strip_prompt
-        self.k = k
+        self.ks = get_ks()
         self.num_workers = num_workers
         self.timeout = timeout
 
@@ -105,7 +106,7 @@ class GeneralHumanEval(Task):
         results, _ = compute_code_eval(
             references=references,
             predictions=generations,
-            k=self.k,
+            k=self.ks,
             num_workers=self.num_workers,
             timeout=self.timeout,
         )

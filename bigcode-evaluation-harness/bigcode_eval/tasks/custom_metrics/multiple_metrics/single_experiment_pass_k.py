@@ -12,11 +12,11 @@ def estimator(n: int, c: int, k: int) -> float:
     return 1.0 - np.prod(1.0 - k / np.arange(n - c + 1, n + 1))
 
 
-def for_file(path):
+def for_file(path, ks: list[int]):
     with open(path, "r") as f:
         data = json.load(f)
     n = len(data["results"])
     c = len(
         [True for r in data["results"] if r["status"] == "OK" and r["exit_code"] == 0]
     )
-    return np.array([estimator(n, c, 1), estimator(n, c, 10), estimator(n, c, 100)])
+    return np.array([estimator(n, c, k) for k in ks])

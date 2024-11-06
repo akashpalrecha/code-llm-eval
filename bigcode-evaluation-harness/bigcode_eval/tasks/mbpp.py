@@ -11,6 +11,7 @@ Homepage:: https://github.com/google-research/google-research/tree/master/mbpp
 """
 
 from bigcode_eval.base import Task
+from bigcode_eval.configure_ks import get_ks
 from bigcode_eval.tasks.custom_metrics.code_eval import compute_code_eval
 
 _CITATION = """
@@ -43,7 +44,7 @@ class MBPP(Task):
             ],
             requires_execution=True,
         )
-        self.k = k
+        self.ks = get_ks()
 
     def get_dataset(self):
         """Returns dataset for the task or an iterable of any object, that get_prompt can handle"""
@@ -90,6 +91,6 @@ class MBPP(Task):
         results, _ = compute_code_eval(
             references=references,
             predictions=generations,
-            k=self.k,
+            k=self.ks,
         )
         return results

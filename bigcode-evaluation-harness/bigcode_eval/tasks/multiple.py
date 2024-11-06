@@ -20,6 +20,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 
 from bigcode_eval.base import Task
+from bigcode_eval.configure_ks import get_ks
 from bigcode_eval.tasks.custom_metrics.multiple_metrics.evaluation import (
     evaluate_problem,
 )
@@ -179,8 +180,10 @@ class GeneralMultiPLE(Task):
             evaluate_problem(temp_dir, file, max_workers)
 
         # compute pass@k scores
+        ks = get_ks()
+
         result_array = np.array(
-            [for_file(p) for p in Path(temp_dir).glob("*.results.json")]
+            [for_file(p, ks=ks) for p in Path(temp_dir).glob("*.results.json")]
         )
         result = result_array.mean(axis=0)
         name = (
