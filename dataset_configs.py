@@ -59,12 +59,10 @@ cd bigcode-evaluation-harness && \
   --n_samples {n_samples} \
   --batch_size {batch_size} \
   --allow_code_execution \
-  --limit {limit} \
   --pass_ks {pass_ks} \
   --metric_output_path {metric_output_path} \
   --save_generations \
   --save_generations_path {generations_output_path} \
   --use_auth_token \
-  --hf_token {hf_token} \
   {extra}
 """

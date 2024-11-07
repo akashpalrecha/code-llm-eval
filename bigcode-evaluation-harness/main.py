@@ -218,12 +218,6 @@ def parse_args():
         default=[1],
         help="List of k's to evaluate the pass_k metric at. Example: --pass_k 1 2 3",
     )
-    parser.add_argument(
-        "--hf_token",
-        type=str,
-        default=None,
-        help="Hugging Face token for private models",
-    )
 
     return parser.parse_args()
 
@@ -246,10 +240,10 @@ def get_gpus_max_memory(max_memory, num_gpus):
 
 def main():
     args = parse_args()
-    hf_token = args.hf_token or os.getenv("HF_TOKEN", None)
+    hf_token = os.getenv("HF_TOKEN", None)
     if hf_token:
         print("Logging in to Hugging Face Hub...")
-        login(token=args.hf_token)
+        login(token=hf_token)
 
     # globally setting `k` for all evals to read in from
     pass_ks: list[int] = args.pass_ks

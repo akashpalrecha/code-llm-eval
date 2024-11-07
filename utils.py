@@ -3,7 +3,7 @@ from pathlib import Path
 import docker
 
 
-def run_evaluation_container(
+def run_evaluation_in_container(
     volume_path: Path,
     metrics_output_path: Path,
     tasks: str,
@@ -56,18 +56,29 @@ def run_evaluation_container(
 
 
 def validate_inputs(
-    model: str, pass_ks: list[int], benchmark: str, limit: int, model_mapping: dict
+    models: list[str],
+    pass_ks: list[int],
+    benchmarks: list[str],
+    limit: int,
+    model_mapping: dict,
+    available_benchmarks: list[str],
 ):
-    if model not in model_mapping:
-        raise ValueError("Invalid model. Choose from: DeepSeek-Coder, CodeGemma")
+    for model in models:
+        if model not in model_mapping:
+            raise ValueError(
+                f"Invalid model [{model}]. Choose from: {list(model_mapping.keys())}"
+            )
 
     if not isinstance(pass_ks, list) or not all(
         isinstance(k_val, int) for k_val in pass_ks
     ):
         raise ValueError("Invalid k. Must be a list of integers.")
 
-    if benchmark not in ["humaneval", "mbbp", "multiple-e"]:
-        raise ValueError("Invalid benchmark. Choose from: humaneval, mbbp, multiple-e")
+    for benchmark in benchmarks:
+        if benchmark not in available_benchmarks:
+            raise ValueError(
+                f"Invalid benchmark [{benchmarks}]. Choose from: {available_benchmarks}"
+            )
 
-    if not isinstance(limit, int) or limit <= 0:
-        raise ValueError("Invalid limit. Must be a positive integer.")
+    if not isinstance(limit, int) or limit < 0:
+        raise ValueError("Invalid limit. Must be equal to or greater than 0")
