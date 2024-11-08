@@ -149,3 +149,18 @@ def run_evaluation_in_container(
         print(line.decode("utf-8"), end="")
 
     container.remove()
+
+
+def get_versioned_output_folder(output_folder: Path) -> Path:
+    """
+    Takes a folder, and returns it if it does not exist.
+    Otherwise returns {folder}_2 or {folder}_3, and so on until it finds a version that does not yet exist.
+    """
+    if not output_folder.exists():
+        return output_folder
+    i = 2
+    while True:
+        new_folder = output_folder.parent / f"{output_folder.name}_{i}"
+        if not new_folder.exists():
+            return new_folder
+        i += 1

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from bigcode_eval.tasks.multiple import LANGUAGES
 from dataset_configs import validate_inputs
-from eval_utils import evaluate_model
+from eval_utils import evaluate_model, get_versioned_output_folder
 
 # For some reason the multiple-py dataset is not available so we remove it at once. This will be fixed in the future
 multiple_e_languages: list[str] = LANGUAGES
@@ -86,7 +86,7 @@ def main() -> None:
     models: list[str] = [args.model]
     pass_ks: list[int] = args.pass_ks
     selected_benchmarks: list[str] = [args.benchmark]
-    output_folder: Path = Path(args.output_folder).absolute()
+    output_folder: Path = get_versioned_output_folder(Path(args.output_folder).absolute())
     limit: int = args.limit
     hf_token: str = args.hf_token
     eval_languages: list[str] = args.languages
