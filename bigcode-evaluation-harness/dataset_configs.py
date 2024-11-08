@@ -56,6 +56,15 @@ def validate_inputs(
     model_mapping: dict,
     available_benchmarks: list[str],
 ) -> None:
+    """
+    Validates the input parameters for benchmark evaluation.
+
+    This function ensures that:
+    - All specified models exist in the model mapping
+    - Pass k values are valid integers
+    - All specified benchmarks are available
+    - The limit is a non-negative integer
+    """
     for model in models:
         if model not in model_mapping:
             raise ValueError(f"Invalid model [{model}]. Choose from: {list(model_mapping.keys())}")

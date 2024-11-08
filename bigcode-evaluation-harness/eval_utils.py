@@ -58,6 +58,10 @@ def evaluate_model(
     eval_languages: list[str],
     env: dict[str, str],
 ) -> None:
+    """
+    Evaluates the model by generating outputs / code on the given benchmark,
+    and then performing evaluation within a Docker container.
+    """
     hf_model = model_mapping[model]
     _pass_ks = " ".join([str(k_val) for k_val in pass_ks])
     tasks: list[TaskConfig] = []
@@ -157,6 +161,13 @@ def run_evaluation_in_container(
 
 
 def get_versioned_output_dir(output_dir: Path) -> Path:
+    """
+    Generates a new versioned directory within the specified output directory.
+
+    This function appends a version suffix (e.g., 'version_0', 'version_1', etc.) to the given output directory
+    path. It increments the version number until it finds a directory name that does not already exist,
+    ensuring that the returned path is unique.
+    """
     i = 0
     while True:
         version_dir = output_dir / f"version_{i}"

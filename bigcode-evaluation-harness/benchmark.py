@@ -16,6 +16,9 @@ model_mapping = {"DeepSeek-Coder": "deepseek-ai/deepseek-coder-1.3b-base", "Code
 
 
 def main() -> None:
+    """
+    Runs evaluation for the given model and benchmark for the given pass@k values.
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "--model",
