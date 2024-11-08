@@ -1,5 +1,10 @@
 # Code LLM Eval
 
+<div style="display: flex; gap: 10px;">
+    <img src="screenshots/capture-1.png" alt="Dashboard-1" width="49%"/>
+    <img src="screenshots/capture-2.png" alt="Dashboard-2" width="49%"/>
+</div>
+
 ## Introduction
 
 This project provides a very lightweight wrapper over [`bigcode-evaluation-harness`](https://github.com/bigcode-project/bigcode-evaluation-harness/) to easily evaluate / benchmark code LLMs.
