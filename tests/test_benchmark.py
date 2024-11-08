@@ -24,7 +24,7 @@ def test_basic(output_dir: Path) -> None:
         "benchmark.py",
         "--model",
         "DeepSeek-Coder",
-        "--pass_ks",
+        "--pass-ks",
         "1",
         "3",
         "5",

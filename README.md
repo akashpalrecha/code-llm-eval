@@ -1,1 +1,120 @@
 # inception-ai-assignment
+
+## Introduction
+
+This project provides tools to evaluate and benchmark Code LLMs.
+- `bigcode-evalutation-harness/benchmark.py`: allows you to run evaluations under various settings, including running a sweep over all models, datasets and pass@k metrics.
+- `bigcode-evalutation-harness/dashboard.py`: dashboard to visualize the generated eval metrics.
+
+## Prerequisites
+
+- Conda
+- Docker
+- [Hugging Face Token](https://huggingface.co/settings/tokens) for private / gated models
+
+## Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/akashpalrecha/code-llm-eval.git
+    cd code-llm-eval
+    ```
+
+2. Create a `conda` environment (we prefer `mamba` which is much faster):
+    ```bash
+    conda env create -f conda.yaml
+    ```
+    Note: you may need to change the `pytorch-cuda` version in the `conda.yaml` file depending on your system.
+
+3. Make sure you're logged into hugging face (for private or gated-access models):
+    ```bash
+    huggingface-cli login
+    ```
+
+## Usage
+
+### Running Evaluations with `benchmark.py`
+
+The `benchmark.py` script evaluates Code LLMs against various benchmarks. You can customize the evaluation using different arguments.
+
+First, `cd` into the codebase:
+
+```bash
+cd bigcode-evaluation-harness
+```
+
+You can find out all the arguments taken by the script:
+
+```shell
+python benchmark.py --help
+usage: benchmark.py [-h] [--model {DeepSeek-Coder,CodeGemma}] [--pass-ks PASS_KS [PASS_KS ...]] [--benchmark {humaneval,mbpp,multiple-e}]
+                    [--languages LANGUAGES [LANGUAGES ...]] [--multiple-e-all] [--output-dir OUTPUT_DIR] [--limit LIMIT] [--hf-token HF_TOKEN] [--sweep]
+
+options:
+  -h, --help            show this help message and exit
+  --model {DeepSeek-Coder,CodeGemma}
+                        Choose the model to evaluate. Options: DeepSeek-Coder, CodeGemma. Default: DeepSeek-Coder
+  --pass-ks PASS_KS [PASS_KS ...]
+                        List of k's to evaluate the pass@k metric at. Example: --pass_k 1 3 5
+  --benchmark {humaneval,mbpp,multiple-e}
+                        Choose the benchmark dataset. Options: ['humaneval', 'mbpp', 'multiple-e']. Default: humaneval
+  --languages LANGUAGES [LANGUAGES ...]
+                        List of languages to evaluate in the Multipl-E benchmark. Available languages: ['sh', 'cljcpp', 'cs', 'd', 'dart', 'elixir', 'go', 'hs', 'java', 'js', 'jl', 'lua', 'mlpl', 'php', 'r', 'rkt', 'rb', 'rs', 'scala', 'swift', 'ts']. Default: js Example: --languages js java swift scala
+  --multiple-e-all      Evaluates all languages in the Multipl-E benchmark. This overrdies the --languages setting.
+  --output-dir OUTPUT_DIR
+                        Specify the output dir path. Default: ./evaluation-outputs
+  --limit LIMIT         Specify the limit for the number of questions / items evaluated. Default: 0 [indicates no limit]
+  --hf-token HF_TOKEN   Hugging Face token for private models. This needs to be provided if running with `sudo`. 
+                        If you have logged in with huggingface-cli, this may not be needed
+  --sweep               Evaluate all models with all benchmarks and k=1,3,5. This overrides all other settings. 
+                        However this does not run evaluation for all languages that are part of multiple-e. You can do that by passing --multiple-e-all separately.
+```
+
+Here are some examples on how to run evaluation for various settings:
+
+```bash
+python benchmark.py --model DeepSeek-Coder --benchmark humaneval --pass-ks 1 3 5 --output-dir ./eval-outputs --limit 50
+python benchmark.py --model DeepSeek-Coder --benchmark mbpp --pass-ks 5 --output-dir ./eval-outputs --limit 50
+python benchmark.py --model DeepSeek-Coder --benchmark multiple-e --languages js php go --pass-ks 1 3 5 --output-dir ./eval-outputs --limit 50
+python benchmark.py --model CodeGemma --benchmark multiple-e --multiple-e-all --pass-ks 5 --output-dir ./eval-outputs
+```
+
+#### Performing a full sweep
+
+To perform eval on all benchmarks, all models and all k's, run:
+
+```bash
+python benchmark.py --sweep --output-dir ./sweep-run
+```
+
+#### If `docker` needs `sudo` access
+
+We perform all evalations inside a docker container for code saftey (especially for languages like `bash`).
+
+If your system does not allow running docker without root privileges, your commands would look like:
+
+```bash
+sudo "$(which python)" benchmark.py --hf-token $HF_TOKEN --model CodeGemma --benchmark humaneval --pass_ks 1 3 5
+sudo "$(which python)" benchmark.py --hf-token $HF_TOKEN --sweep --output-dir ./sweep-run
+```
+
+> Note: we need to pass the `hf-token` separately because running as `sudo` resets the environment and python will 
+not be able to find the hugging face token in that setting.
+
+###  Running the Dashboard with `dashboard.py`
+
+The `dashboard.py` script allows you to visualize the evaluation results interactively using **Streamlit**.
+
+#### Start the Dashboard
+
+First, ensure that you have the evaluation results generated by benchmark.py in the specified output directory.
+
+Then, run the dashboard: `streamlit run dashboard.py`
+
+Open your web browser and navigate to the URL provided in the terminal (usually `http://localhost:8501`).
+
+#### Dashboard Configuration
+
+- On the sidebar, enter the directory containing the evaluation results (default: `sweep-run/version_0`).
+- Selection Filters: Choose specific models, benchmarks, and pass@k metrics to display.
+- Interactive Plots: Explore the performance metrics through interactive Altair charts.
