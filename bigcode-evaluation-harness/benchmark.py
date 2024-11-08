@@ -25,11 +25,11 @@ def main() -> None:
         help=f"Choose the model to evaluate. Options: {', '.join(model_mapping.keys())}. Default: DeepSeek-Coder",
     )
     parser.add_argument(
-        "--pass_ks",
+        "--pass-ks",
         type=int,
         nargs="+",
         default=[1],
-        help="List of k's to evaluate the pass_k metric at. Example: --pass_k 1 3 5",
+        help="List of k's to evaluate the pass@k metric at. Example: --pass_k 1 3 5",
     )
     parser.add_argument(
         "--benchmark",
@@ -45,7 +45,7 @@ def main() -> None:
         default=["js"],
         help=f"""
         List of languages to evaluate in the Multipl-E benchmark.
-        Availble languages: {multiple_e_languages}. Default: js
+        Available languages: {multiple_e_languages}. Default: js
         Example: --languages js java swift scala""",
     )
     parser.add_argument(
@@ -66,10 +66,13 @@ def main() -> None:
         help="Specify the limit for the number of questions / items evaluated. Default: 0 [indicates no limit]",
     )
     parser.add_argument(
-        "--hf_token",
+        "--hf-token",
         type=str,
         default=None,
-        help="Hugging Face token for private models",
+        help="""
+        Hugging Face token for private models. This needs to be provided if running with `sudo`. 
+        If you have logged in with huggingface-cli, this may not be needed.
+        """,
     )
     parser.add_argument(
         "--sweep",
