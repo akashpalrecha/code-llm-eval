@@ -42,8 +42,7 @@ task_configs: dict[str, TaskConfig] = {
         max_generation_length=512,
         extra="""
         --do_sample True  \
-        --trust_remote_code \
-        --generation_only \
+        --trust_remote_code
         """,
     ),
 }
