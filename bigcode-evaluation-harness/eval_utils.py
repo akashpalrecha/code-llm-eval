@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 import docker
+
 from dataset_configs import TaskConfig, task_configs
 
 #############################################################################
@@ -15,12 +16,16 @@ from dataset_configs import TaskConfig, task_configs
 # this, such as configuring the environment properly or using Docker without
 # sudo, this approach serves as a temporary workaround to ensure the binaries
 # are accessible during the evaluation process.
+#
+# With that said, this will still work if your system is configured to let
+# docker run without sudo access
 #############################################################################
 
 python_dir = Path(sys.executable).parent
 accelerate_path = str(python_dir / "accelerate")
-
-eval_command_prefix = f"{accelerate_path} launch  main.py "
+cwd = Path(__file__).parent
+main_py = str(cwd / "main.py")
+eval_command_prefix = f"{accelerate_path} launch  {main_py} "
 
 generate_command = (
     eval_command_prefix
