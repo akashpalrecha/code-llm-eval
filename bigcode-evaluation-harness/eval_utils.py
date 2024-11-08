@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 import docker
-from dataset_configs import task_configs
+from dataset_configs import TaskConfig, task_configs
 
 #############################################################################
 # The following lines ensure that binaries like 'accelerate' are discoverable
@@ -47,7 +47,7 @@ def evaluate_model(
     pass_ks: list[int],
     n_samples: int,
     batch_size: int,
-    output_folder: Path,
+    output_dir: Path,
     limit: int,
     model_mapping: dict[str, str],
     eval_languages: list[str],
@@ -55,7 +55,7 @@ def evaluate_model(
 ) -> None:
     hf_model = model_mapping[model]
     _pass_ks = " ".join([str(k_val) for k_val in pass_ks])
-    tasks = []
+    tasks: list[TaskConfig] = []
     if selected_benchmark == "multiple-e":
         _task = task_configs["multiple-e"]
         for lang in eval_languages:
@@ -66,7 +66,7 @@ def evaluate_model(
         tasks.append(task_configs[selected_benchmark])
 
     for task in tasks:
-        task.output_folder = output_folder
+        task.output_dir = output_dir
         _generate_command = generate_command.format(
             hf_model=hf_model,
             benchmark=task.name,
@@ -151,16 +151,10 @@ def run_evaluation_in_container(
     container.remove()
 
 
-def get_versioned_output_folder(output_folder: Path) -> Path:
-    """
-    Takes a folder, and returns it if it does not exist.
-    Otherwise returns {folder}_2 or {folder}_3, and so on until it finds a version that does not yet exist.
-    """
-    if not output_folder.exists():
-        return output_folder
-    i = 2
+def get_versioned_output_dir(output_dir: Path) -> Path:
+    i = 0
     while True:
-        new_folder = output_folder.parent / f"{output_folder.name}_{i}"
-        if not new_folder.exists():
-            return new_folder
+        version_dir = output_dir / f"version_{i}"
+        if not version_dir.exists():
+            return version_dir
         i += 1

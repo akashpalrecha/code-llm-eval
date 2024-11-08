@@ -8,24 +8,24 @@ class TaskConfig:
     temperature: float = 0.2
     max_generation_length: int = 512
     extra: str = ""
-    output_folder: Path = Path.cwd() / "evaluation-outputs"
+    output_dir: Path = Path.cwd() / "evaluation-outputs"
 
     @property
     def metrics_output_path(self) -> Path:
-        return self.output_folder / f"{self.name}-eval.json"
+        return self.output_dir / f"{self.name}-eval.json"
 
     @property
     def generation_output_path(self) -> Path:
-        return self.output_folder / "generations.json"
+        return self.output_dir / "generations.json"
 
     @property
     def computed_generation_output_path(
         self,
     ) -> Path:  # because bigcode changes the path we provide
-        return self.output_folder / f"generations_{self.name}.json"
+        return self.output_dir / f"generations_{self.name}.json"
 
 
-task_configs = {
+task_configs: dict[str, TaskConfig] = {
     "humaneval": TaskConfig(
         name="humaneval",
         temperature=0.2,

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from bigcode_eval.tasks.multiple import LANGUAGES
 from dataset_configs import validate_inputs
-from eval_utils import evaluate_model, get_versioned_output_folder
+from eval_utils import evaluate_model, get_versioned_output_dir
 
 # For some reason the multiple-py dataset is not available so we remove it at once. This will be fixed in the future
 multiple_e_languages: list[str] = LANGUAGES
@@ -54,10 +54,10 @@ def main() -> None:
         help="Evaluate all languages in the Multipl-E benchmark. This overrdies the --languages setting.",
     )
     parser.add_argument(
-        "--output-folder",
+        "--output-dir",
         type=str,
         default="./evaluation-outputs",
-        help="Specify the output folder path. Default: ./evaluation-outputs",
+        help="Specify the output dir path. Default: ./evaluation-outputs",
     )
     parser.add_argument(
         "--limit",
@@ -86,7 +86,7 @@ def main() -> None:
     models: list[str] = [args.model]
     pass_ks: list[int] = args.pass_ks
     selected_benchmarks: list[str] = [args.benchmark]
-    output_folder: Path = get_versioned_output_folder(Path(args.output_folder).absolute())
+    output_dir: Path = get_versioned_output_dir(Path(args.output_dir).absolute())
     limit: int = args.limit
     hf_token: str = args.hf_token
     eval_languages: list[str] = args.languages
@@ -108,9 +108,10 @@ def main() -> None:
         available_benchmarks=available_benchmarks,
     )
 
+    print(f"Saving evaluation outputs to: {str(output_dir)}")
     n_samples = max(pass_ks)
     batch_size = min(16, n_samples)
-    output_folder.mkdir(exist_ok=True, parents=True)
+    output_dir.mkdir(exist_ok=True, parents=True)
     env = os.environ.copy()
     if hf_token:
         env["HF_TOKEN"] = hf_token
@@ -120,7 +121,7 @@ def main() -> None:
         pass_ks=pass_ks,
         batch_size=batch_size,
         n_samples=n_samples,
-        output_folder=output_folder,
+        output_dir=output_dir,
         limit=limit,
         model_mapping=model_mapping,
         eval_languages=eval_languages,
@@ -128,10 +129,10 @@ def main() -> None:
     )
 
     for model in models:
-        _output_folder = output_folder / model
-        _output_folder.mkdir(exist_ok=True, parents=True)
+        _output_dir = output_dir / model
+        _output_dir.mkdir(exist_ok=True, parents=True)
         for selected_benchmark in selected_benchmarks:
-            _evaluate(model=model, selected_benchmark=selected_benchmark, output_folder=_output_folder)
+            _evaluate(model=model, selected_benchmark=selected_benchmark, output_dir=_output_dir)
 
 
 if __name__ == "__main__":
