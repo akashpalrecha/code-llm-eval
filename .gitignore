@@ -164,3 +164,4 @@ cython_debug/
 generations*.json
 *eval.json
 .vscode
+logs*
