@@ -7,26 +7,19 @@ from argparse import ArgumentParser
 from functools import partial
 from pathlib import Path
 
+from bigcode_eval.tasks.multiple import LANGUAGES
 from dataset_configs import eval_command, task_configs
 from utils import run_evaluation_in_container, validate_inputs
 
-# we're going through ALL of the below trouble because **Docker** needs sudo access
+# to make binaries like accelerate discoverable in sudo world because **Docker** needs sudo access
 # there are **much** better ways of doing this but for the time being this will suffice
-
-# to make binaries like accelerate discoverable in sudo world
 python_dir = Path(sys.executable).parent
 sys.path.append(str(python_dir))
 accelerate_path = python_dir / "accelerate"
 
-# grabbing all languages supported by Multiple-E
-# ideally we would have our eval scripts in the same directory as the eval harness but for now this hacky-solution will do
-sys.path.append(str(Path(__file__).parent / "bigcode-evaluation-harness"))
 
-# pyright doesn't know this is now in scope
-from bigcode_eval.tasks.multiple import LANGUAGES  # type: ignore
-
+# For some reason the multiple-py dataset is not available. This will be fixed in the future
 languages: list[str] = LANGUAGES
-# For some reason the py dataset is not available for multiple-e. This will be fixed in the future
 languages.remove("py")
 
 
