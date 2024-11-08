@@ -1,10 +1,44 @@
 import copy
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import docker
-from dataset_configs import eval_command, task_configs
+from dataset_configs import task_configs
+
+#############################################################################
+# The following lines ensure that binaries like 'accelerate' are discoverable
+# when running with sudo privileges. This is necessary because Docker commands
+# often require sudo access, and without this step, the binaries might not be
+# found in the PATH. While there are more secure and efficient ways to handle
+# this, such as configuring the environment properly or using Docker without
+# sudo, this approach serves as a temporary workaround to ensure the binaries
+# are accessible during the evaluation process.
+#############################################################################
+
+python_dir = Path(sys.executable).parent
+accelerate_path = str(python_dir / "accelerate")
+
+eval_command_prefix = f"{accelerate_path} launch  main.py "
+
+generate_command = (
+    eval_command_prefix
+    + """ \
+  --model {hf_model} \
+  --max_length_generation {max_generation_length} \
+  --tasks {benchmark} \
+  --temperature {temperature} \
+  --n_samples {n_samples} \
+  --batch_size {batch_size} \
+  --pass_ks {pass_ks} \
+  --save_generations \
+  --save_generations_path {generations_output_path} \
+  --generation_only \
+  --use_auth_token \
+  {extra}
+"""
+)
 
 
 def evaluate_model(
@@ -33,7 +67,7 @@ def evaluate_model(
 
     for task in tasks:
         task.output_folder = output_folder
-        _eval_command = eval_command.format(
+        _generate_command = generate_command.format(
             hf_model=hf_model,
             benchmark=task.name,
             temperature=task.temperature,
@@ -41,29 +75,28 @@ def evaluate_model(
             n_samples=n_samples,
             batch_size=batch_size,
             pass_ks=_pass_ks,
-            metric_output_path=task.metrics_output_path,
             extra=task.extra,
             generations_output_path=task.generation_output_path,
         )
         if limit > 0:
-            _eval_command += f" --limit {limit}"
+            _generate_command += f" --limit {limit}"
 
-        _eval_command = re.sub(
-            r"\s+", " ", _eval_command
+        _generate_command = re.sub(
+            r"\s+", " ", _generate_command
         ).strip()  # replacing all multiple spaces with a single space for readability
 
-        print("\n", _eval_command, end="\n\n")
-        subprocess.run(_eval_command, shell=True, env=env)
+        print("\n", _generate_command, end="\n\n")
+        subprocess.run(_generate_command, shell=True, env=env)
 
-        if selected_benchmark == "multiple-e":
-            run_evaluation_in_container(
-                volume_path=task.computed_generation_output_path,
-                metrics_output_path=task.metrics_output_path,
-                tasks=task.name,
-                temperature=task.temperature,
-                n_samples=n_samples,
-                pass_ks=pass_ks,
-            )
+        # if selected_benchmark == "multiple-e":
+        run_evaluation_in_container(
+            volume_path=task.computed_generation_output_path,
+            metrics_output_path=task.metrics_output_path,
+            tasks=task.name,
+            temperature=task.temperature,
+            n_samples=n_samples,
+            pass_ks=pass_ks,
+        )
 
 
 def run_evaluation_in_container(
@@ -116,26 +149,3 @@ def run_evaluation_in_container(
         print(line.decode("utf-8"), end="")
 
     container.remove()
-
-
-def validate_inputs(
-    models: list[str],
-    pass_ks: list[int],
-    benchmarks: list[str],
-    limit: int,
-    model_mapping: dict,
-    available_benchmarks: list[str],
-):
-    for model in models:
-        if model not in model_mapping:
-            raise ValueError(f"Invalid model [{model}]. Choose from: {list(model_mapping.keys())}")
-
-    if not isinstance(pass_ks, list) or not all(isinstance(k_val, int) for k_val in pass_ks):
-        raise ValueError("Invalid k. Must be a list of integers.")
-
-    for benchmark in benchmarks:
-        if benchmark not in available_benchmarks:
-            raise ValueError(f"Invalid benchmark [{benchmarks}]. Choose from: {available_benchmarks}")
-
-    if not isinstance(limit, int) or limit < 0:
-        raise ValueError("Invalid limit. Must be equal to or greater than 0")

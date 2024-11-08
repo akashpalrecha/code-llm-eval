@@ -1,4 +1,3 @@
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,36 +49,24 @@ task_configs = {
 }
 
 
-#############################################################################
-# The following lines ensure that binaries like 'accelerate' are discoverable
-# when running with sudo privileges. This is necessary because Docker commands
-# often require sudo access, and without this step, the binaries might not be
-# found in the PATH. While there are more secure and efficient ways to handle
-# this, such as configuring the environment properly or using Docker without
-# sudo, this approach serves as a temporary workaround to ensure the binaries
-# are accessible during the evaluation process.
-#############################################################################
+def validate_inputs(
+    models: list[str],
+    pass_ks: list[int],
+    benchmarks: list[str],
+    limit: int,
+    model_mapping: dict,
+    available_benchmarks: list[str],
+) -> None:
+    for model in models:
+        if model not in model_mapping:
+            raise ValueError(f"Invalid model [{model}]. Choose from: {list(model_mapping.keys())}")
 
-python_dir = Path(sys.executable).parent
-accelerate_path = str(python_dir / "accelerate")
+    if not isinstance(pass_ks, list) or not all(isinstance(k_val, int) for k_val in pass_ks):
+        raise ValueError("Invalid k. Must be a list of integers.")
 
-eval_command_prefix = f"{accelerate_path} launch  main.py "
+    for benchmark in benchmarks:
+        if benchmark not in available_benchmarks:
+            raise ValueError(f"Invalid benchmark [{benchmarks}]. Choose from: {available_benchmarks}")
 
-eval_command = (
-    eval_command_prefix
-    + """ \
-  --model {hf_model} \
-  --max_length_generation {max_generation_length} \
-  --tasks {benchmark} \
-  --temperature {temperature} \
-  --n_samples {n_samples} \
-  --batch_size {batch_size} \
-  --allow_code_execution \
-  --pass_ks {pass_ks} \
-  --metric_output_path {metric_output_path} \
-  --save_generations \
-  --save_generations_path {generations_output_path} \
-  --use_auth_token \
-  {extra}
-"""
-)
+    if not isinstance(limit, int) or limit < 0:
+        raise ValueError("Invalid limit. Must be equal to or greater than 0")

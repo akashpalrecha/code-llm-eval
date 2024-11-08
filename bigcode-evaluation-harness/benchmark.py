@@ -4,7 +4,8 @@ from functools import partial
 from pathlib import Path
 
 from bigcode_eval.tasks.multiple import LANGUAGES
-from eval_utils import evaluate_model, validate_inputs
+from dataset_configs import validate_inputs
+from eval_utils import evaluate_model
 
 # For some reason the multiple-py dataset is not available so we remove it at once. This will be fixed in the future
 multiple_e_languages: list[str] = LANGUAGES
