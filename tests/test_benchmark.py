@@ -44,6 +44,7 @@ def test_basic(output_dir: Path) -> None:
     assert (output_dir / "version_0" / "DeepSeek-Coder" / "humaneval-eval.json").exists()
 
 
+@pytest.mark.skip(reason="Skipping sweep test because it takes too long to run")
 def test_sweep(output_dir: Path) -> None:
     test_args = [
         "benchmark.py",

@@ -143,7 +143,10 @@ Open your web browser and navigate to the URL provided in the terminal (usually 
 
 ## Tests
 
-Run tests with: `pytest -vs` [in the root of the repository]
+Run tests with: `pytest -vs` [in the root of the repository]<br>
+
+The full sweep test [`tests/test_benchmark.py::test_sweep`] is skipped by default as it takes a few minutes to run.<br>
+You can comment the `@pytest.mark.skip` line to enable it.
 
 ## Implementation Notes
 
