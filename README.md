@@ -100,6 +100,9 @@ python benchmark.py --model CodeGemma --benchmark multiple-e --multiple-e-all --
 > Note: running some of these benchmarks can take a long time depending on your system configuration. 
 You can use the `--limit N` parameter to do short experimental runs if needed.
 
+*All eval runs are created in a new iteratively versioned folder. So you can run the same command multiple times without 
+worrying about overwriting any previous results.*
+
 #### Performing a full sweep
 
 To perform eval on all benchmarks, all models and all k's, run:
